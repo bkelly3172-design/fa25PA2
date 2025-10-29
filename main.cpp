@@ -1,6 +1,10 @@
 //
 // Created by Manju Muralidharan on 10/19/25.
 //
+
+//Brett Kelly
+//RedID: 1312844745
+//10/21/25
 #include <iostream>
 #include <fstream>
 #include <stack>
@@ -91,20 +95,57 @@ int createLeafNodes(int freq[]) {
 int buildEncodingTree(int nextFree) {
     // TODO:
     // 1. Create a MinHeap object.
+    MinHeap heap;
+    int treeArr[MAX_NODES];
     // 2. Push all leaf node indices into the heap.
+    for (int i = 0; i < nextFree; ++i) {
+        heap.push(i, treeArr);
+    }
     // 3. While the heap size is greater than 1:
     //    - Pop two smallest nodes
     //    - Create a new parent node with combined weight
     //    - Set left/right pointers
     //    - Push new parent index back into the heap
+    while (heap.size > 1) {
+        int left = heap.pop(treeArr);
+        int right = heap.pop(treeArr);
+        int parentNode = nextFree++;
+        weightArr[parentNode] = weightArr[left] + weightArr[right];
+        leftArr[parentNode] = left;
+        rightArr[parentNode] = right;
+        heap.push(parentNode, treeArr);
+    }
     // 4. Return the index of the last remaining node (root)
-    return -1; // placeholder
+    return heap.pop(treeArr);
+
+    //return -1; // placeholder
 }
 
 // Step 4: Use an STL stack to generate codes
 void generateCodes(int root, string codes[]) {
     // TODO:
     // Use stack<pair<int, string>> to simulate DFS traversal.
+    stack<pair<int, string>> stack;
+    stack.push(make_pair(root, ""));
+    while (stack.size()>0) {
+        pair<int, string> p = stack.top();
+        stack.pop();
+        int node = p.first;
+        string code = p.second;
+
+
+        if (leftArr[node] == -1  && rightArr[node] == -1) {
+            codes[node] = code;
+        }
+        else {
+            if (rightArr[node] != -1) {
+                stack.push(make_pair(rightArr[node], code + "1"));
+            }
+            if (leftArr[node] != -1) {
+                stack.push(make_pair(leftArr[node], code + "0"));
+            }
+        }
+    }
     // Left edge adds '0', right edge adds '1'.
     // Record code when a leaf node is reached.
 }
