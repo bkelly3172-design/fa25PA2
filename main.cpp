@@ -99,21 +99,23 @@ int buildEncodingTree(int nextFree) {
     int treeArr[MAX_NODES];
     // 2. Push all leaf node indices into the heap.
     for (int i = 0; i < nextFree; ++i) {
-        heap.push(i, treeArr);
+        heap.push(i, weightArr);
     }
     // 3. While the heap size is greater than 1:
     //    - Pop two smallest nodes
     //    - Create a new parent node with combined weight
     //    - Set left/right pointers
     //    - Push new parent index back into the heap
+    int nextIndex = nextFree;
     while (heap.size > 1) {
         int left = heap.pop(treeArr);
         int right = heap.pop(treeArr);
-        int parentNode = nextFree++;
+        int parentNode = nextIndex++;
         weightArr[parentNode] = weightArr[left] + weightArr[right];
         leftArr[parentNode] = left;
         rightArr[parentNode] = right;
-        heap.push(parentNode, treeArr);
+        charArr[parentNode] = ' ';
+        heap.push(parentNode, weightArr);
     }
     // 4. Return the index of the last remaining node (root)
     return heap.pop(treeArr);
@@ -131,19 +133,19 @@ void generateCodes(int root, string codes[]) {
         pair<int, string> p = stack.top();
         stack.pop();
         int node = p.first;
-        string code = p.second;
-
+        string code= p.second;
 
         if (leftArr[node] == -1  && rightArr[node] == -1) {
-            codes[node] = code;
+            if (charArr[node]>='a' && charArr[node]<='z'){
+                int letter = charArr[node] - 'a';
+                codes[letter] = code;
+            }
         }
-        else {
-            if (rightArr[node] != -1) {
-                stack.push(make_pair(rightArr[node], code + "1"));
-            }
-            if (leftArr[node] != -1) {
-                stack.push(make_pair(leftArr[node], code + "0"));
-            }
+        if (rightArr[node] != -1) {
+            stack.push(make_pair(rightArr[node], code + "1"));
+        }
+        if (leftArr[node] != -1) {
+            stack.push(make_pair(leftArr[node], code + "0"));
         }
     }
     // Left edge adds '0', right edge adds '1'.
